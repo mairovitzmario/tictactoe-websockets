@@ -4,7 +4,8 @@ import GameOverModal from "./components/GameOverModal";
 import useTicTacToe from "./hooks/useTicTactoe";
 
 function App() {
-  const { handleCellClick, ticTacToe, modalRef, nextMove } = useTicTacToe();
+  const { handleCellClick, ticTacToe, modalRef, nextMove, winner } =
+    useTicTacToe();
 
   return (
     <main>
@@ -38,7 +39,7 @@ function App() {
           ))}
         </div>
       </div>
-      <GameOverModal winner={0} modalRef={modalRef} />
+      <GameOverModal winner={winner} modalRef={modalRef} />
     </main>
   );
 }
