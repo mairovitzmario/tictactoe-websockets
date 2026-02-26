@@ -7,7 +7,6 @@ dialog::backdrop {
 
 dialog {
   padding: 2rem 4rem;
-
   border: 2px solid rgb(177, 177, 177);
   div {
     display: flex;

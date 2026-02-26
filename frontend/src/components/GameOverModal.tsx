@@ -13,23 +13,19 @@ declare module "react" {
 type GameOverModalProps = {
   winner: CellType;
   modalRef: RefObject<HTMLDialogElement | null>;
+  onPlayAgain: () => void;
 };
 
 export default function GameOverModal({
   winner,
   modalRef,
+  onPlayAgain,
 }: GameOverModalProps) {
   return (
     <dialog id="game-over" ref={modalRef}>
       <div>
         <h2>{winner != 0 ? `${winner} won!` : "Tie!"}</h2>
-        <button
-          onClick={() => {
-            modalRef.current?.close();
-          }}
-        >
-          Play Again
-        </button>
+        <button onClick={onPlayAgain}>Play Again</button>
       </div>
     </dialog>
   );

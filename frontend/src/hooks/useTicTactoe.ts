@@ -58,6 +58,11 @@ export default function useTicTacToe() {
     else setNextMove("O");
   }
 
+  function restartGame() {
+    modalRef.current?.close();
+    setTicTacToe(startGrid);
+  }
+
   // Check if game has ended
   useEffect(() => {
     const roundWinner = getWinner(ticTacToe);
@@ -65,9 +70,15 @@ export default function useTicTacToe() {
     if (roundWinner || !ticTacToe.flat().includes(0)) {
       setWinner(roundWinner);
       modalRef.current?.showModal();
-      setTicTacToe(startGrid);
     }
   }, [ticTacToe]);
 
-  return { handleCellClick, ticTacToe, nextMove, modalRef, winner };
+  return {
+    handleCellClick,
+    ticTacToe,
+    nextMove,
+    modalRef,
+    winner,
+    restartGame,
+  };
 }
