@@ -1,6 +1,6 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import useTicTacToe from "./useTicTactoe";
+import useTicTacToe from "../../src/hooks/useTicTactoe";
 
 describe("useTicTacToe", () => {
   it("initializes correctly", () => {

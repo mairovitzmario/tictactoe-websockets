@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeAll } from "vitest";
-import App from "./App";
+import App from "../src/App";
 
 describe("App Integration", () => {
   beforeAll(() => {

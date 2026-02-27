@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import React from "react";
-import GameOverModal from "./GameOverModal";
+import GameOverModal from "../../src/components/GameOverModal";
 
 describe("GameOverModal", () => {
   it("renders winner correctly", () => {
