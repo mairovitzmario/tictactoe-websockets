@@ -1,5 +1,5 @@
 import type { CellType } from "../utils/types";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 
 export default function useTicTacToe() {
   const startGrid: CellType[][] = [
@@ -36,23 +36,25 @@ export default function useTicTacToe() {
     return 0;
   }
 
-  function handleCellClick({
-    cell_i,
-    cell_j,
-  }: {
-    cell_i: number;
-    cell_j: number;
-  }) {
-    setTicTacToe(
-      ticTacToe.map((row, i) => {
-        if (i == cell_i) {
-          return row.map((cell, j) => {
-            if (j == cell_j) return nextMove;
-            else return cell;
-          });
-        } else return row;
-      }),
-    );
+  function makeMove({ cell_i, cell_j }: { cell_i: number; cell_j: number }) {
+    //  Add move
+    const newTicTacToe = ticTacToe.map((row, i) => {
+      if (i == cell_i) {
+        return row.map((cell, j) => {
+          if (j == cell_j) return nextMove;
+          else return cell;
+        });
+      } else return row;
+    });
+    setTicTacToe(newTicTacToe);
+
+    // Check if round ended
+    const roundWinner = getWinner(newTicTacToe);
+    console.log(roundWinner);
+    if (roundWinner || !newTicTacToe.flat().includes(0)) {
+      setWinner(roundWinner);
+      modalRef.current?.showModal();
+    }
 
     if (nextMove == "O") setNextMove("X");
     else setNextMove("O");
@@ -63,18 +65,8 @@ export default function useTicTacToe() {
     setTicTacToe(startGrid);
   }
 
-  // Check if game has ended
-  useEffect(() => {
-    const roundWinner = getWinner(ticTacToe);
-    console.log(roundWinner);
-    if (roundWinner || !ticTacToe.flat().includes(0)) {
-      setWinner(roundWinner);
-      modalRef.current?.showModal();
-    }
-  }, [ticTacToe]);
-
   return {
-    handleCellClick,
+    makeMove,
     ticTacToe,
     nextMove,
     modalRef,
