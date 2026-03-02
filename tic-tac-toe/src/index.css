@@ -23,3 +23,23 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+dialog {
+  padding: 2rem 4rem;
+  border: 2px solid rgb(177, 177, 177);
+}
+
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+
+  transition: backdrop-filter 0.3s ease;
+}
+
+button {
+  padding: 0.8rem;
+  letter-spacing: 0.2rem;
+  font-family: unset;
+
+  border: 2px solid rgb(255, 255, 255);
+}

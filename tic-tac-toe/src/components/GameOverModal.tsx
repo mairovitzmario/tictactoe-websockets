@@ -1,7 +1,7 @@
 import type { CellType } from "../utils/types";
 import type { RefObject } from "react";
 
-import "./GameOverModal.module.css";
+import styles from "./GameOverModal.module.css";
 
 declare module "react" {
   interface ButtonHTMLAttributes<T> {
@@ -22,7 +22,7 @@ export default function GameOverModal({
   onPlayAgain,
 }: GameOverModalProps) {
   return (
-    <dialog id="game-over" ref={modalRef}>
+    <dialog className={styles.modal} id="game-over" ref={modalRef}>
       <div>
         <h2>{winner != 0 ? `${winner} won!` : "Tie!"}</h2>
         <button onClick={onPlayAgain}>Play Again</button>

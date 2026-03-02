@@ -1,0 +1,33 @@
+.indicator {
+  --size: 1rem;
+  position: fixed;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background-color: rgba(108, 67, 67, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.107);
+  transform-origin: center center;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+.indicator::after {
+  content: attr(data-label);
+  width: 5rem;
+
+  text-align: center;
+  color: rgb(255, 140, 140);
+  font-size: 1rem;
+  position: absolute;
+  top: -1.5rem;
+}
+
+@media screen and (max-width: 500px) {
+  .indicator {
+    --size: 1rem;
+  }
+
+  .indicator::after {
+    font-size: 0.8rem;
+  }
+}
