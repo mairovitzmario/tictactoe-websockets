@@ -1,0 +1,29 @@
+.start-game-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 30rem;
+}
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  padding: 10px 10px;
+  font-size: 1.1rem;
+  font-family: inherit;
+}
+
+input:focus {
+  outline: none;
+  border: 2px solid white;
+}
+
+.start-game-form button {
+  max-width: inherit;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
