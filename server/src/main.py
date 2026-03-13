@@ -1,9 +1,9 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from pydantic import TypeAdapter
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import HTMLResponse
 from pathlib import Path
 
 from models.types import ConnectionEntry
+import models.schemas as schemas
 
 app = FastAPI()
 
@@ -11,23 +11,25 @@ class ConnectionManager:
     def __init__(self):
         self.active_users: dict[str, ConnectionEntry] = {}
 
-    async def connect(self, username, websocket: WebSocket):
+    async def connect(self, username: str, websocket: WebSocket):
+        if username in self.active_users:
+            return False
         await websocket.accept()
         self.active_users[username] = {'socket': websocket, 'pair': None}
+        return True
 
-    def add_pair(self, username1, username2):
+    def add_pair(self, username1: str, username2: str):
         self.active_users[username1]['pair'] = username2
         self.active_users[username2]['pair'] = username1
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_users.remove(websocket)
+    def disconnect(self, username: str):
+        pair = self.active_users[username]['pair']
+        self.active_users[pair]['pair'] = None
+        self.active_users.pop(username)
 
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
+    async def send_personal_message(self, message: dict[str,any], websocket: WebSocket):
+        await websocket.send_json(message)
 
-    async def broadcast(self, message: str):
-        for user in self.active_users:
-            await self.active_users[user]['socket'].send_text(message)
 
 
 manager = ConnectionManager()
@@ -39,23 +41,24 @@ async def get():
     html_path = base_dir / "static" / "index.html"
     return HTMLResponse(html_path.read_text())
 
-@app.get('/validate/{username}')
-async def validateUsername(username: str) -> bool: 
-    if username in manager.active_users:
-        return False
-    return True
 
-
- 
 @app.websocket("/ws/{client_username}")
 async def websocket_endpoint(websocket: WebSocket, client_username: str):
-    await manager.connect(client_username, websocket)
+    connected = await manager.connect(client_username, websocket)
+    if not connected:
+        await websocket.accept()
+        res = schemas.WebSocketConnectRes(status=False, 
+                                          message='Error: Username is already taken.')
+        await websocket.send_json(res.model_dump())
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
     try:
         while True:
             data = await websocket.receive_text()
             print(data)
             await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_username} says: {data}")
+
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        manager.disconnect(client_username)
         await manager.broadcast(f"Client #{client_username} left the chat")

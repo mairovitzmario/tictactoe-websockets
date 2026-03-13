@@ -55,7 +55,10 @@ function App() {
             </div>
           </div>
         ) : (
-          <StartGameForm />
+          <StartGameForm
+            finalUsername={username}
+            setFinalUsername={setUsername}
+          />
         )}
         <GameOverModal
           winner={winner}
