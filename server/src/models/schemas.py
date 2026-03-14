@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Literal
+from pydantic import BaseModel, Field, TypeAdapter
+from typing import Literal, Union, Annotated
 
 # Responses (from Server)
  
@@ -28,3 +28,15 @@ class MakeMoveReq(BaseModel):
     x: int
     y: int
     symbol: Literal['O', 'X']
+
+class PointerPositionReq(BaseModel):
+    action: Literal['pointer-position'] = 'pointer-position'
+    x: int
+    y: int
+
+ClientRequest = Annotated[
+    Union[StartGameReq, PairUserReq, MakeMoveReq, PointerPositionReq], 
+    Field(discriminator='action')
+]
+
+ClientRequestAdapter = TypeAdapter(ClientRequest)

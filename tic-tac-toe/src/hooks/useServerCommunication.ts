@@ -1,19 +1,51 @@
 import { useState, useEffect, useCallback } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
+import type {
+  StartGameReq,
+  PairUserReq,
+  MakeMoveReq,
+  PointerPositionReq,
+  StartGameRes,
+  WebSocketConnectRes,
+} from "../shared/models";
+
+export type ClientRequest =
+  | StartGameReq
+  | PairUserReq
+  | MakeMoveReq
+  | PointerPositionReq;
+
+export type ServerMessage =
+  | StartGameRes
+  | WebSocketConnectRes
+  | MakeMoveReq
+  | PointerPositionReq;
 
 export default function useServerCommunication(username: string) {
-  //   const [messageHistory, setMessageHistory] = useState<MessageEvent<any>[]>([]);
+  const [latestMessage, setLatestMessage] = useState<ServerMessage | null>(
+    null,
+  );
   const socketUrl = `ws://localhost:8000/ws/${username}`;
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   useEffect(() => {
     if (lastMessage !== null) {
-      //   setMessageHistory((prev) => prev.concat(lastMessage));
-      console.log(lastMessage);
+      try {
+        const response: ServerMessage = JSON.parse(lastMessage.data);
+        console.log("Parsed server message:", response);
+        setLatestMessage(response);
+      } catch (err) {
+        console.error("Failed to parse message", err);
+      }
     }
   }, [lastMessage]);
 
-  const handleClickSendMessage = useCallback(() => sendMessage("Hello"), []);
+  const sendClientRequest = useCallback(
+    (request: ClientRequest) => {
+      sendMessage(JSON.stringify(request));
+    },
+    [sendMessage],
+  );
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
@@ -23,5 +55,5 @@ export default function useServerCommunication(username: string) {
     [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState];
 
-  return { handleClickSendMessage };
+  return { sendClientRequest, latestMessage, connectionStatus };
 }

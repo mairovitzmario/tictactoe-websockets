@@ -22,9 +22,15 @@ class ConnectionManager:
         self.active_users[username1]['pair'] = username2
         self.active_users[username2]['pair'] = username1
 
+    async def forward_to_pair(self, username: str, message: dict[str,any]):
+        pair = self.active_users[username].get('pair')
+        if pair and pair in self.active_users:
+            await self.send_personal_message(message, self.active_users[pair]['socket'])
+
     def disconnect(self, username: str):
-        pair = self.active_users[username]['pair']
-        self.active_users[pair]['pair'] = None
+        pair = self.active_users[username].get('pair')
+        if pair and pair in self.active_users:
+            self.active_users[pair]['pair'] = None
         self.active_users.pop(username)
 
     async def send_personal_message(self, message: dict[str,any], websocket: WebSocket):
@@ -56,8 +62,27 @@ async def websocket_endpoint(websocket: WebSocket, client_username: str):
     try:
         while True:
             data = await websocket.receive_text()
-            print(data)
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
+            try:
+                request = schemas.ClientRequestAdapter.validate_json(data)
+                print(f"Received valid request from {client_username}: {request}")
+                
+                match request.action:
+                    case 'start-game':
+                        unpaired = [user for user, info in manager.active_users.items() if info['pair'] is None and user != client_username]
+                        if unpaired:
+                            opponent = unpaired[0]
+                            manager.add_pair(client_username, opponent)
+   
+                            await manager.send_personal_message(schemas.StartGameRes(opponent=opponent, symbol='X').model_dump(), manager.active_users[client_username]['socket'])
+                            await manager.send_personal_message(schemas.StartGameRes(opponent=client_username, symbol='O').model_dump(), manager.active_users[opponent]['socket'])
+                    case 'pair':
+                        manager.add_pair(client_username, request.opponent)
+                    case 'make-move':
+                        await manager.forward_to_pair(client_username, request.model_dump())
+                    case 'pointer-position':
+                        await manager.forward_to_pair(client_username, request.model_dump())
+            except Exception as e:
+                print(f"Failed to parse request from {client_username}: {e}")
 
     except WebSocketDisconnect:
         manager.disconnect(client_username)
