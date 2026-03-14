@@ -1,6 +1,5 @@
 import { useState } from "react";
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
-import useServerCommunication from "./useServerCommunication";
 import z from "zod";
 
 type RoomChoiceType = "create" | "join";
@@ -25,8 +24,6 @@ export default function useGameInit(
 
   const [usernameError, setUsernameError] = useState<string>("");
   const [friendError, setFriendError] = useState<string>("");
-
-  const { handleClickSendMessage } = useServerCommunication(username);
 
   function validateUsername(
     value: string,

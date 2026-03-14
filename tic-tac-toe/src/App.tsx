@@ -23,6 +23,7 @@ function App() {
   const [mySymbol, setMySymbol] = useState<"X" | "O" | null>(null);
   const [opponentPointer, setOpponentPointer] = useState({ x: -100, y: -100 });
   const [isSearching, setIsSearching] = useState(false);
+  const [serverError, setServerError] = useState<string>("");
 
   const pointerPosition = usePointerPosition();
   const pointerPositionRef = useRef(pointerPosition);
@@ -33,7 +34,7 @@ function App() {
   }, [pointerPosition]);
 
   const { sendClientRequest, latestMessage, connectionStatus } =
-    useServerCommunication(username || "guest");
+    useServerCommunication(username);
 
   useEffect(() => {
     if (username && connectionStatus === "Open" && !isSearching && !opponent) {
@@ -45,7 +46,10 @@ function App() {
   useEffect(() => {
     if (!latestMessage) return;
 
-    if (latestMessage.action === "start-game") {
+    if (latestMessage.action === "connect" && !latestMessage.status) {
+      setServerError(latestMessage.message || "Connection failed");
+      setUsername("");
+    } else if (latestMessage.action === "start-game") {
       setOpponent(latestMessage.opponent);
       setMySymbol(latestMessage.symbol);
       setIsSearching(false);
@@ -103,7 +107,7 @@ function App() {
                 </h2>
                 <div className="tic-tac-toe">
                   {ticTacToe.map((row, i) => (
-                    <>
+                    <div key={i} style={{ display: "contents" }}>
                       {row.map((cell, j) => (
                         <button
                           className={`cell ${cell == 0 && "empty"}`}
@@ -115,7 +119,7 @@ function App() {
                           {cell != 0 && cell}
                         </button>
                       ))}
-                    </>
+                    </div>
                   ))}
                 </div>
               </>
@@ -124,7 +128,11 @@ function App() {
         ) : (
           <StartGameForm
             finalUsername={username}
-            setFinalUsername={setUsername}
+            setFinalUsername={(val) => {
+              setServerError("");
+              setUsername(val);
+            }}
+            serverError={serverError}
           />
         )}
         <GameOverModal

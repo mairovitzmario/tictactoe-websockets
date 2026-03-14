@@ -4,11 +4,12 @@ import TextInput from "./TextInput";
 import useGameInit from "../hooks/useGameInit";
 
 export default function StartGameModal({
-  finalUsername,
   setFinalUsername,
+  serverError,
 }: {
   finalUsername: string;
   setFinalUsername: Dispatch<SetStateAction<string>>;
+  serverError?: string;
 }) {
   const {
     roomChoice,
@@ -35,7 +36,7 @@ export default function StartGameModal({
         name="username"
         id="username"
         disabled={roomChoice === "join"}
-        error={usernameError}
+        error={usernameError || serverError}
       />
       {roomChoice === "join" ? (
         <TextInput

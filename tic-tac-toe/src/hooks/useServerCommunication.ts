@@ -25,7 +25,7 @@ export default function useServerCommunication(username: string) {
   const [latestMessage, setLatestMessage] = useState<ServerMessage | null>(
     null,
   );
-  const socketUrl = `ws://localhost:8000/ws/${username}`;
+  const socketUrl = username ? `ws://localhost:8000/ws/${username}` : null;
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   useEffect(() => {
