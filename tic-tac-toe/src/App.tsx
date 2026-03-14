@@ -1,6 +1,6 @@
 import "./App.css";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import GameOverModal from "./components/GameOverModal";
 import MouseIndicator from "./components/MouseIndicator";
 import usePointerPosition from "./hooks/usePointerPosition";
@@ -25,6 +25,13 @@ function App() {
   const [isSearching, setIsSearching] = useState(false);
 
   const pointerPosition = usePointerPosition();
+  const pointerPositionRef = useRef(pointerPosition);
+
+  // Keep ref updated without triggering other effects
+  useEffect(() => {
+    pointerPositionRef.current = pointerPosition;
+  }, [pointerPosition]);
+
   const { sendClientRequest, latestMessage, connectionStatus } =
     useServerCommunication(username || "guest");
 
@@ -51,14 +58,19 @@ function App() {
   }, [latestMessage]);
 
   useEffect(() => {
-    if (opponent && mySymbol) {
+    if (!opponent || !mySymbol) return;
+
+    // Send the latest pointer position at a fixed interval to prevent flooding
+    const interval = setInterval(() => {
       sendClientRequest({
         action: "pointer-position",
-        x: pointerPosition.x,
-        y: pointerPosition.y,
+        x: pointerPositionRef.current.x,
+        y: pointerPositionRef.current.y,
       });
-    }
-  }, [pointerPosition.x, pointerPosition.y, opponent, mySymbol]);
+    }, 50); // e.g., 20 times a second
+
+    return () => clearInterval(interval);
+  }, [opponent, mySymbol, sendClientRequest]);
 
   const handleCellClick = (i: number, j: number) => {
     if (nextMove === mySymbol && !winner) {

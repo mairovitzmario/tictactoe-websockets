@@ -31,8 +31,8 @@ class MakeMoveReq(BaseModel):
 
 class PointerPositionReq(BaseModel):
     action: Literal['pointer-position'] = 'pointer-position'
-    x: int
-    y: int
+    x: float
+    y: float
 
 ClientRequest = Annotated[
     Union[StartGameReq, PairUserReq, MakeMoveReq, PointerPositionReq], 
