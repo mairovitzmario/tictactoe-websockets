@@ -68,6 +68,10 @@ async def websocket_endpoint(websocket: WebSocket, client_username: str):
                 
                 match request.action:
                     case 'start-game':
+                        # First, if the user was already paired, disconnect them
+                        manager.disconnect(client_username)
+                        manager.active_users[client_username] = {'socket': websocket, 'pair': None}
+                        
                         unpaired = [user for user, info in manager.active_users.items() if info['pair'] is None and user != client_username]
                         if unpaired:
                             opponent = unpaired[0]

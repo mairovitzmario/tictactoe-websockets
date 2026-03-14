@@ -63,6 +63,8 @@ export default function useTicTacToe() {
   function restartGame() {
     modalRef.current?.close();
     setTicTacToe(startGrid);
+    setNextMove("X");
+    setWinner(0);
   }
 
   return {

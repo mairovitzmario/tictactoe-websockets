@@ -42,6 +42,7 @@ function App() {
       setOpponent(latestMessage.opponent);
       setMySymbol(latestMessage.symbol);
       setIsSearching(false);
+      restartGame();
     } else if (latestMessage.action === "make-move") {
       makeMove({ cell_i: latestMessage.x, cell_j: latestMessage.y });
     } else if (latestMessage.action === "pointer-position") {
@@ -118,8 +119,7 @@ function App() {
           winner={winner}
           modalRef={gameOverModalRef}
           onPlayAgain={() => {
-            restartGame();
-            sendClientRequest({ action: "start-game" });
+            setOpponent("");
           }}
         />
       </main>
